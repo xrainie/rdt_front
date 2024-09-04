@@ -1,0 +1,54 @@
+@import "../variables";
+
+.authorization-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+
+  &__block {
+    background-color: $gray1;
+    border-radius: 0.677vw;
+    width: 29.68vw;
+    padding: 0.83vw 1.25vw 1.458vw;
+  }
+
+  &__head {
+    font-size: 1.25vw;
+    line-height: 1.67vw;
+    color: $white;
+    margin-bottom: 1.67vw;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.83vw;
+
+    input {
+      width: 100%;
+      border: 0.052vw solid rgba(255, 255, 255, 0.23);
+      padding: 0 0.625vw;
+      height: 2.9167vw;
+      background-color: transparent;
+      border-radius: 0.2083vw;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+      }
+    }
+
+    a {
+      color: $dark-gray;
+      font-size: 0.729vw;
+      line-height: 0.55vw;
+      border-bottom: 0.052vw solid rgba(255, 255, 255, 0.23);
+    }
+
+    button {
+      align-self: center;
+      margin-top: 1.875vw;
+    }
+  }
+}

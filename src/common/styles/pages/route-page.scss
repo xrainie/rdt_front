@@ -1,0 +1,120 @@
+@import "../variables";
+
+.route-page {
+  &__container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.83vw;
+    justify-content: space-between;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 1.0417vw;
+    margin-bottom: 1.25vw;
+
+    .none {
+      display: none;
+    }
+
+    h1[id="title"] {
+      margin-bottom: 0;
+    }
+
+    &-edit-button {
+      background-color: transparent;
+      border: none;
+      height: 1.67vw;
+      width: 1.67vw;
+      margin-bottom: 0.2vw;
+
+      svg {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    &-input {
+      width: 11.458vw;
+    }
+  }
+
+  &__map {
+    width: calc(100% - 30.729vw - 0.83vw);
+  }
+
+  &__block {
+    padding: 1.25vw;
+    background-color: $bg-light;
+    border-radius: 0.2083vw;
+
+    h5 {
+      font-size: 1.0417vw;
+      line-height: 1.67vw;
+      font-weight: 400;
+    }
+  }
+
+  &__info {
+    width: 30.729vw;
+    padding: 0.83vw;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.83vw 0;
+
+    &-input {
+      width: calc(50% - 0.2083vw);
+
+      &:first-of-type {
+        width: 23.54vw;
+      }
+
+      &:nth-of-type(2), &:nth-of-type(3) {
+        input {
+          border-color: $green;
+        }
+      }
+    }
+
+    &-button {
+      margin: 1.0417vw;
+      margin-left: auto;
+    }
+  }
+
+  &__border {
+    width: 100%;
+
+    &-haeder {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.625vw;
+    }
+
+    &-buttons {
+      display: flex;
+      gap: 0.83vw;
+      margin: 0.4167vw 0 0.83vw;
+    }
+
+    &-points {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.83vw;
+    }
+
+    &-point {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.83vw;
+      width: calc((100% - 1.67vw) / 3);
+
+      input {
+        width: 18.33vw;
+      }
+    }
+  }
+}

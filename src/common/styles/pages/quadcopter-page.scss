@@ -1,0 +1,81 @@
+@import "../variables";
+
+.quadcopter-page {
+  &.page {
+    padding-right: 6.67vw;
+  }
+
+  &__filter {
+    display: flex;
+    gap: 1.25vw;
+    align-items: center;
+    margin-bottom: 0.83vw;
+
+    label {
+      background-color: $black;
+    }
+
+    input {
+      width: 15.625vw;
+    }
+
+    .button:last-of-type {
+      margin-left: auto;
+    }
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.83vw;
+    border-radius: 0.2083vw;
+  }
+
+  &__item {
+    width: 100%;
+    padding: 0.83vw 1.25vw;
+    background-color: $bg-light;
+
+    &-header {
+      display: flex;
+      gap: 0.83vw;
+      margin-bottom: 1.25vw;
+      align-items: center;
+
+      input {
+        width: calc((100% - 3.33vw) / 5);
+      }
+    }
+
+    &-body {
+      display: flex;
+      gap: 0.83vw;
+      margin-bottom: 1.25vw;
+      align-items: center;
+
+      .input-with-label {
+        width: calc((100% - 3.33vw) / 5);
+      }
+    }
+  }
+
+  &__modal {
+    &-inputs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25vw 0.83vw;
+    }
+
+    &-input {
+      width: calc((100% - 0.83vw) / 2);
+
+      p {
+        margin-bottom: 0.625vw;
+      }
+    }
+
+    &-button {
+      margin: 1.458vw 1.0417vw 1.0417vw auto;
+    }
+  }
+}

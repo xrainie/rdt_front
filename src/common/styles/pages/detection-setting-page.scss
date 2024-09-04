@@ -1,0 +1,22 @@
+@import "../variables";
+
+.detection-setting-page {
+  h1 {
+    margin-bottom: 1.67vw;
+  }
+
+  .switcher {
+    margin-bottom: 0.83vw;
+  }
+
+  &__input {
+    label {
+      display: block;
+      margin-bottom: 0.625vw;
+    }
+
+    input {
+      width: 14.58vw;
+    }
+  }
+}

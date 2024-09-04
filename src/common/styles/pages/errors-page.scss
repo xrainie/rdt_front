@@ -1,0 +1,32 @@
+@import "../variables";
+
+.errors-page {
+  &__table {
+    width: 49.479vw;
+    background-color: $bg-light;
+    padding: 0.83vw 1.25vw;
+    border-radius: 0.2083vw;
+
+    &-header {
+      background-color: $gray1;
+      border-radius: 0.2083vw;
+    }
+
+    &-row {
+      display: flex;
+      padding: 0.83vw;
+
+      div {
+        font-weight: 400;
+      }
+
+      div:first-of-type {
+        width: 26%;
+      }
+
+      div:last-of-type {
+        width: 74%
+      }
+    }
+  }
+}

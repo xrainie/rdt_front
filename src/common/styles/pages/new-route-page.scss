@@ -1,0 +1,135 @@
+@import "../variables";
+
+.map {
+  width: 500px;
+  height: 500px;
+}
+
+.new-route-page {
+  &__container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.83vw;
+  }
+
+  &__map {
+    width: calc(100% - 28.489vw - 0.83vw);
+    height: 24.375vw;
+  }
+
+  &__block {
+    padding: 1.25vw;
+    background-color: $bg-light;
+    border-radius: 0.2083vw;
+
+    h5 {
+      font-size: 1.0417vw;
+      line-height: 1.67vw;
+      font-weight: 400;
+    }
+  }
+
+  &__borders {
+    width: 28.489vw;
+    height: 24.375vw;
+    padding: 0.83vw 1.25vw 0.83vw 0.83vw;
+    overflow: scroll;
+
+    &-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.83vw;
+      padding: 0.4167vw 0 0.83vw 0;
+    }
+
+    &-points {
+      display: flex;
+      flex-direction: column;
+      gap: 0.83vw;
+    }
+
+    &-point {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.83vw;
+
+      .input-with-label {
+        width: 18.33vw;
+      }
+    }
+  }
+
+  &__additional-settings {
+    width: calc(100% - 32.917vw - 0.83vw);
+
+    &-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.83vw;
+
+      p {
+        color: $blue;
+      }
+    }
+
+    &-inputs {
+      display: flex;
+      gap: 1.25vw;
+      margin-bottom: 1.25vw;
+    }
+
+    &-input {
+      width: calc((100% - 2.5vw) / 3);
+
+      .dropdown {
+        width: 100%;
+      }
+
+      p {
+        margin-bottom: 0.625vw;
+      }
+    }
+
+    &-devices {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25vw;
+
+      .input-with-label {
+        width: calc((100% - 2.5vw) / 3);
+      }
+    }
+
+    h6 {
+      margin: 1.25vw 0 0.625vw;
+    }
+  }
+
+  &__settings {
+    width: 32.917vw;
+
+    h5 {
+      margin-bottom: 0.83vw;
+    }
+
+    &-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.0417vw 1.25vw;
+    }
+
+    .input-with-label {
+      width: calc((100% / 2) - 0.625vw);
+
+      .dropdown, input {
+        width: 100%;
+      }
+    }
+
+    &-button {
+      margin: 1.875vw 1.0417vw 1.0417vw auto;
+    }
+  }
+}

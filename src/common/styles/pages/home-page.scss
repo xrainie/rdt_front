@@ -1,0 +1,97 @@
+@import "../variables";
+
+.home-page {
+  &__container {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__table-container {
+    width: calc(100% - 54.167vw - 1.146vw);
+  }
+
+  &__table-filter {
+    p {
+      margin-bottom: 0.625vw;
+    }
+
+    .dropdown {
+      margin-bottom: 0.4167vw;
+    }
+  }
+
+  &__table {
+    background-color: $bg-light;
+    border-radius: 0.2083vw;
+    padding: 0.83vw 1.146vw 0.83vw 0.83vw;
+
+    &-header {
+      & > div {
+        background-color: $gray1;
+      }
+    }
+
+    &-body {
+      & > div {
+        cursor: pointer;
+      }
+    }
+
+    &-row {
+      display: flex;
+      border-bottom: 0.052vw solid rgba(255, 255, 255, 0.23);
+
+      &.active {
+        background-color: $gray1;
+      }
+
+      div {
+        width: 32%;
+        padding: 0.83vw 0.4167vw;
+        text-align: center;
+        font-weight: 500;
+
+        &:last-of-type {
+          width: 36%;
+        }
+      }
+    }
+  }
+
+  &__map-container {
+    width: 54.167vw;
+  }
+
+  &__map-item {
+    overflow: hidden;
+    height: 39.583vw;
+    border-radius: 0.2083vw;
+
+    img {
+      width: 100%;
+    }
+  }
+
+  &__map {
+    &-row {
+      width: 26.042vw;
+      margin-left: auto;
+      margin-bottom: 0.4167vw;
+      margin-top: 1.875vw;
+      display: flex;
+      background-color: $bg-light;
+      border-radius: 0.2083vw;
+
+      div {
+        width: 32%;
+        padding: 0.83vw 0.4167vw;
+        text-align: center;
+        font-weight: 500;
+
+        &:last-of-type {
+          width: 36%;
+        }
+      }
+    }
+  }
+}

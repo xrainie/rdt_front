@@ -5,6 +5,7 @@ import { Context } from "../common/utils/context";
 
 import {getRoute, updateRoute} from "../api";
 import mapImg from "../common/images/map2.png";
+import {Clusterer, Map, Placemark, Polygon, YMaps} from "@pbe/react-yandex-maps";
 
 const selectTypeFilterList = [
   {value: 1, label: "Зигзаг"},
@@ -15,6 +16,8 @@ const selectTypeFilterList = [
 const selectRangeFilterList = [ ...Array(100).keys() ].map((i) => {
   return ({value: i + 1, label: i + 1});
 });
+
+const defaultPoint = [55.75399399999374,37.62209300000001];
 
 const RoutePage = () => {
   const { id } = useParams();
@@ -30,6 +33,9 @@ const RoutePage = () => {
 
   const [routeTitle, setRouteTitle] = useState('');
 
+  const [currentPoint, setCurrentPoint] = useState(defaultPoint);
+  const [points, setPoints] = useState([]);
+
   const getRouteData = () => {
     getRoute(id).then((response) => {
       setRoute(response.data);
@@ -39,6 +45,9 @@ const RoutePage = () => {
       setSelectedCountFilter({value: response.data.quadcopters.length, label: response.data.quadcopters.length});
       setSelectedCopterFilter({value: response.data.quadcopters[0]?.id, label: response.data.quadcopters[0]?.name});
       setSelectedSettingCopterFilter({value: response.data.quadcopters[0]?.id, label: response.data.quadcopters[0]?.name});
+      setPoints(response.data.coordinates.map((el, index) => {
+        return {id: index, value: el.split(',').map((el, index) => Number(el))}
+      }))
     }).catch((error) => {
       console.log(error);
     });
@@ -122,7 +131,40 @@ const RoutePage = () => {
       </div>
 
       <div className="route-page__container">
-        <img className="route-page__map" src={mapImg} alt="Map"/>
+        {/*<img className="route-page__map" src={mapImg} alt="Map"/>*/}
+        <div className="route-page__map">
+          <YMaps>
+            <Map
+              width="100%"
+              height="100%"
+              defaultState={{
+                center: currentPoint,
+                zoom: 11,
+              }}
+              // onClick={(e) => handleClickPoint(e)}
+            >
+              <Clusterer
+                options={{
+                  preset: "islands#invertedVioletClusterIcons",
+                  groupByCoordinates: false,
+                }}
+              >
+                {points.map((point, index) => (
+                  <Placemark key={point.id} geometry={point.value} iconContent={index + 1} />
+                ))}
+              </Clusterer>
+
+              <Polygon
+                geometry={[points.map((point) => point.value)]}
+                options={{
+                  fillColor: "rgba(183,127,127,0.4)",
+                  strokeColor: "#cb0000",
+                  opacity: 0.5,
+                }}
+              />
+            </Map>
+          </YMaps>
+        </div>
 
         <div className="route-page__block route-page__info">
           <h5>Информация о выполнении задачи</h5>

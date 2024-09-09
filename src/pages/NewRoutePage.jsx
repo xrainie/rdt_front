@@ -6,7 +6,6 @@ import { addRoute, getQuadcopters } from "../api";
 import { YMaps, Map, Placemark, Polygon, Clusterer } from '@pbe/react-yandex-maps';
 import mapImg from "../common/images/map2.png";
 
-
 const selectTypeFilterList = [
   {value: 1, label: "Зигзаг"},
   {value: 2, label: "Спираль"},
@@ -25,17 +24,17 @@ const defaultPointInputs = [
 ]
 
 const NewRoutePage = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const [quadcopters, setQuadcopters] = useState([]);
   const [selectTypeFilter, setSelectedTypeFilter] = useState(selectTypeFilterList[0]);
   const [selectedRangeFilter, setSelectedRangeFilter] = useState({value: 1, label: 1});
   const [selectedFrequencyFilter, setSelectedFrequencyFilter] = useState('');
   const [selectedCopterFilter, setSelectedCopterFilter] = useState({});
-  const [selectedCountFilter, setSelectedCountFilter] = useState({value: 1, label: 1});
+  // const [selectedCountFilter, setSelectedCountFilter] = useState({value: 1, label: 1});
 
+  const [map, setMap] = useState(null);
   const [points, setPoints] = useState([]);
-  const [currentPoint, setCurrentPoint] = useState(defaultPoint);
   const [pointInputs, setPointInputs] = useState(defaultPointInputs);
   const [lastPointIndex, setLastPointIndex] = useState(2);
 
@@ -76,18 +75,22 @@ const NewRoutePage = () => {
   }
 
   const handleAddPointOnMap= (point) => {
-    let pointsArray = points;
-    let newPointValue = Array.isArray(point.value)
-      ? point.value
-      : point.value.split(',').map((el, index) => Number(el));
+    if (point.value !== '') {
+      let pointsArray = points;
+      let newPointValue = Array.isArray(point.value)
+        ? point.value
+        : point.value.split(',').map((el, index) => Number(el));
 
-    if (pointsArray.some((el, index) => el.id === point.id)) {
-      const elIndex = pointsArray.findIndex((el) => el.id === point.id);
-      pointsArray.splice(elIndex, 1, {value: newPointValue, id: point.id})
-      setPoints([...pointsArray]);
-    } else {
-      pointsArray.push({value: newPointValue, id: point.id});
-      setPoints([...pointsArray]);
+      if (pointsArray.some((el, index) => el.id === point.id)) {
+        const elIndex = pointsArray.findIndex((el) => el.id === point.id);
+        pointsArray.splice(elIndex, 1, {value: newPointValue, id: point.id})
+        setPoints([...pointsArray]);
+      } else {
+        pointsArray.push({value: newPointValue, id: point.id});
+        setPoints([...pointsArray]);
+      }
+
+      map.setCenter(newPointValue);
     }
   }
 
@@ -138,14 +141,17 @@ const NewRoutePage = () => {
     ]);
     setPoints([]);
     setLastPointIndex(2);
+    map.setCenter(defaultPoint);
   }
 
   const handleDeletePoint = (point) => {
-    const newPointInputsArray = pointInputs.filter((el) => el.id !== point.id);
-    setPointInputs([...newPointInputsArray])
+    if (pointInputs.length > 3) {
+      const newPointInputsArray = pointInputs.filter((el) => el.id !== point.id);
+      setPointInputs([...newPointInputsArray])
 
-    const newPointsArray = points.filter((el) => el.id !== point.id);
-    setPoints([...newPointsArray])
+      const newPointsArray = points.filter((el) => el.id !== point.id);
+      setPoints([...newPointsArray])
+    }
   }
 
   return (
@@ -160,11 +166,11 @@ const NewRoutePage = () => {
               width="100%"
               height="100%"
               defaultState={{
-                center: currentPoint,
-                // center: [60.07559950087123,30.306310346293056],
+                center: defaultPoint,
                 zoom: 11,
               }}
               onClick={(e) => handleClickPoint(e)}
+              instanceRef={ref => ref && setMap(ref)}
             >
               <Clusterer
                 options={{

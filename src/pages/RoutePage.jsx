@@ -3,9 +3,9 @@ import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { Context } from "../common/utils/context";
 
-import {getRoute, updateRoute} from "../api";
+import { getRoute, updateRoute } from "../api";
 import mapImg from "../common/images/map2.png";
-import {Clusterer, Map, Placemark, Polygon, YMaps} from "@pbe/react-yandex-maps";
+import { Clusterer, Map, Placemark, Polygon, YMaps } from "@pbe/react-yandex-maps";
 
 const selectTypeFilterList = [
   {value: 1, label: "Зигзаг"},
@@ -33,8 +33,8 @@ const RoutePage = () => {
 
   const [routeTitle, setRouteTitle] = useState('');
 
-  const [currentPoint, setCurrentPoint] = useState(defaultPoint);
   const [points, setPoints] = useState([]);
+  const [ymaps, setYmaps] = useState();
 
   const getRouteData = () => {
     getRoute(id).then((response) => {
@@ -94,6 +94,19 @@ const RoutePage = () => {
     });
   }
 
+  const setCenter = (ref) => {
+    if (ymaps) {
+      const map = ref.getMap();
+
+      const result = ymaps.util.bounds.getCenterAndZoom(
+        ref.geometry.getBounds(),
+        map.container.getSize()
+      );
+
+      map.setCenter(result.center, result.zoom);
+    }
+  }
+
   return (
     <div className="route-page page">
       <div className="route-page__title">
@@ -133,15 +146,15 @@ const RoutePage = () => {
       <div className="route-page__container">
         {/*<img className="route-page__map" src={mapImg} alt="Map"/>*/}
         <div className="route-page__map">
-          <YMaps>
+          <YMaps query={{ lang: "ru_RU", load: "util.bounds" }}>
             <Map
               width="100%"
               height="100%"
               defaultState={{
-                center: currentPoint,
+                center: defaultPoint,
                 zoom: 11,
               }}
-              // onClick={(e) => handleClickPoint(e)}
+              onLoad={ymaps => setYmaps(ymaps)}
             >
               <Clusterer
                 options={{
@@ -161,6 +174,7 @@ const RoutePage = () => {
                   strokeColor: "#cb0000",
                   opacity: 0.5,
                 }}
+                instanceRef={ref => ref && setCenter(ref)}
               />
             </Map>
           </YMaps>

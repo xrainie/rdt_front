@@ -7,6 +7,8 @@ export const getRoutes = (params) => axiosInstance.get(Endpoints.GET_ROUTERS , {
 
 export const getRoute = (id) => axiosInstance.get(Endpoints.GET_ROUTER + `${id}`);
 
+export const getRouteJson = (params) => axiosInstance.get(Endpoints.GET_ROUTER_JSON, { params });
+
 export const addRoute = (params) => axiosInstance.post(Endpoints.ADD_ROUTER, params);
 
 export const updateRoute = (id, params) => axiosInstance.patch(Endpoints.UPDATE_ROUTER + `${id}`, params);

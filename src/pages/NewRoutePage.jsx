@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import Select from "react-select";
-import { useNavigate } from "react-router-dom";
 
 import { addRoute, getQuadcopters } from "../api";
 import { YMaps, Map, Placemark, Polygon, Clusterer } from '@pbe/react-yandex-maps';
-import mapImg from "../common/images/map2.png";
 
 const selectTypeFilterList = [
   {value: 1, label: "Зигзаг"},
@@ -24,8 +22,6 @@ const defaultPointInputs = [
 ]
 
 const NewRoutePage = () => {
-  // const navigate = useNavigate();
-
   const [quadcopters, setQuadcopters] = useState([]);
   const [selectTypeFilter, setSelectedTypeFilter] = useState(selectTypeFilterList[0]);
   const [selectedRangeFilter, setSelectedRangeFilter] = useState({value: 1, label: 1});
@@ -66,7 +62,6 @@ const NewRoutePage = () => {
 
   const handleAddRoute = () => {
     addRoute({...getParams()}).then((response) => {
-      // navigate(/routes/${response.data.id});
       window.location.href = `/routes/${response.data.id}`;
       console.log(response);
     }).catch((error) => {

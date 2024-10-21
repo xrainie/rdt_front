@@ -1,8 +1,7 @@
 import axios from 'axios';
 import Endpoints from './endpoints'
 
-// export const API_URL = "http://84.252.143.72:8000/api/v1";
-export const API_URL = "http://84.201.136.101:8000/api/v1";
+export const API_URL = "http://158.160.27.120:8000/api/v1";
 
 export const axiosInstance = axios.create({
   baseURL: API_URL,

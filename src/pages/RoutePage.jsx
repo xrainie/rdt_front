@@ -3,9 +3,8 @@ import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { Context } from "../common/utils/context";
 
-import { getRoute, updateRoute } from "../api";
-import mapImg from "../common/images/map2.png";
-import { Clusterer, Map, Placemark, Polygon, YMaps } from "@pbe/react-yandex-maps";
+import { getRoute, getRouteJson, updateRoute } from "../api";
+import { Clusterer, Map, Placemark, Polygon, Polyline, YMaps } from "@pbe/react-yandex-maps";
 
 const selectTypeFilterList = [
   {value: 1, label: "Зигзаг"},
@@ -30,11 +29,18 @@ const RoutePage = () => {
   const [selectedCountFilter, setSelectedCountFilter] = useState({});
   const [selectedCopterFilter, setSelectedCopterFilter] = useState({});
   const [selectedSettingCopterFilter, setSelectedSettingCopterFilter] = useState({});
+  const [lastPointIndex, setLastPointIndex] = useState(0);
 
   const [routeTitle, setRouteTitle] = useState('');
 
+  const [pointInputs, setPointInputs] = useState([]);
   const [points, setPoints] = useState([]);
-  const [ymaps, setYmaps] = useState();
+  const [map, setMap] = useState(null);
+  const [ymaps, setYmaps] = useState(null);
+
+  const [jsonLink, setJsonLink] = useState('');
+  const [copterRoute, setCopterRoute] = useState([]);
+  const [isPolygonCentreMode, setIsPolygonCentreMode] = useState(true);
 
   const getRouteData = () => {
     getRoute(id).then((response) => {
@@ -45,20 +51,64 @@ const RoutePage = () => {
       setSelectedCountFilter({value: response.data.quadcopters.length, label: response.data.quadcopters.length});
       setSelectedCopterFilter({value: response.data.quadcopters[0]?.id, label: response.data.quadcopters[0]?.name});
       setSelectedSettingCopterFilter({value: response.data.quadcopters[0]?.id, label: response.data.quadcopters[0]?.name});
+      setPointInputs(response.data.coordinates.map((el, index) => {
+        return {id: index, value: el.split(',').map((el, index) => Number(el))}
+      }));
       setPoints(response.data.coordinates.map((el, index) => {
         return {id: index, value: el.split(',').map((el, index) => Number(el))}
-      }))
+      }));
+      setLastPointIndex(response.data.coordinates.length);
+    }).catch((error) => {
+      console.log(error);
+    });
+  }
+
+  const getRouteJsonData = () => {
+    getRouteJson({route_id: id}).then((response) => {
+      setJsonLink(response.data.full_path_url)
+      setCopterRoute(response.data.path_vertices);
     }).catch((error) => {
       console.log(error);
     });
   }
 
   useEffect(() => {
+    getRouteJsonData();
     getRouteData();
+    setIsPolygonCentreMode(true);
   }, [id]);
 
-  const handleChangeCoordinates = () => {
-    console.log(1);
+  const setCenter = (ref) => {
+    if (ymaps && isPolygonCentreMode) {
+      const map = ref.getMap();
+      if (!!ref.geometry && !!ref.geometry.getBounds()) {
+        const result = ymaps.util.bounds.getCenterAndZoom(
+          ref?.geometry?.getBounds(),
+          map?.container?.getSize()
+        );
+        map.setCenter(result.center, result.zoom - 1);
+      }
+    }
+  }
+
+  const getParams = () => {
+    return ({
+      coordinates: pointInputs
+        .filter((el) => el.value !== "")
+        .map((el) =>
+          Array.isArray(el.value) ? `${el.value[0]}, ${el.value[1]}` : el.value),
+      type_search: selectedTypeFilter.label,
+      scan_range: selectedRangeFilter.label,
+      scan_frequency: selectedFrequencyFilter,
+    })
+  }
+
+  const handleUpdateRoute = () => {
+    updateRoute(id, {...getParams()}).then((response) => {
+      getRouteData();
+    }).catch((error) => {
+      console.log(error);
+    });
   }
 
   const getCopter = () => {
@@ -94,17 +144,104 @@ const RoutePage = () => {
     });
   }
 
-  const setCenter = (ref) => {
-    if (ymaps) {
-      const map = ref.getMap();
+  const handleAddPointOnMap= (point) => {
+    setIsPolygonCentreMode(false);
 
-      const result = ymaps.util.bounds.getCenterAndZoom(
-        ref.geometry.getBounds(),
-        map.container.getSize()
-      );
+    if (point.value !== '') {
+      let pointsArray = points;
+      let newPointValue = Array.isArray(point.value)
+        ? point.value
+        : point.value.split(',').map((el, index) => Number(el));
 
-      map.setCenter(result.center, result.zoom);
+      if (pointsArray.some((el, index) => el.id === point.id)) {
+        const elIndex = pointsArray.findIndex((el) => el.id === point.id);
+        pointsArray.splice(elIndex, 1, {value: newPointValue, id: point.id})
+        setPoints([...pointsArray]);
+      } else {
+        pointsArray.push({value: newPointValue, id: point.id});
+        setPoints([...pointsArray]);
+      }
+
+      map.setCenter(newPointValue);
     }
+  }
+
+  const handleClickPoint = (e) => {
+    setIsPolygonCentreMode(false);
+
+    const newPoint = e.get("coords");
+
+    const pointsArray = points;
+    const inputsArray = pointInputs;
+
+    console.log(pointsArray)
+    console.log(inputsArray)
+    if (inputsArray.some((el) => el.value === '')) {
+      const indexInput = inputsArray.findIndex((el) => el.value === '');
+      const inputId = inputsArray[indexInput].id;
+      inputsArray[indexInput] = {value: newPoint, id: inputId}
+      setPointInputs([...inputsArray]);
+
+      pointsArray.push({value: newPoint, id: inputId});
+      setPoints([...pointsArray]);
+    } else {
+      pointsArray.push({value: newPoint, id: lastPointIndex + 1});
+      setPoints([...pointsArray]);
+
+      inputsArray.push({value: newPoint, id: lastPointIndex + 1});
+      setPointInputs([...inputsArray])
+
+      setLastPointIndex(lastPointIndex + 1);
+    }
+  }
+
+  const handleChangePointValue = (e, point) => {
+    let array = pointInputs;
+    const elIndex = array.findIndex((el) => el.id === point.id);
+    array.splice(elIndex, 1, {value: e.target.value, id: point.id})
+    setPointInputs([...array]);
+  }
+
+  const handleAddPointInput = () => {
+    let array = pointInputs;
+    array.push({value: '', id: lastPointIndex + 1});
+    setLastPointIndex(lastPointIndex + 1);
+    setPointInputs([...array]);
+  }
+
+  const handleClearPoints = () => {
+    setPointInputs([
+      {value: "", id: 0},
+      {value: "", id: 1},
+      {value: "", id: 2}
+    ]);
+    setPoints([]);
+    setLastPointIndex(2);
+    map.setCenter(defaultPoint);
+  }
+
+  const handleDeletePoint = (point) => {
+    if (pointInputs.length > 3) {
+      const newPointInputsArray = pointInputs.filter((el) => el.id !== point.id);
+      setPointInputs([...newPointInputsArray])
+
+      const newPointsArray = points.filter((el) => el.id !== point.id);
+      setPoints([...newPointsArray])
+    }
+  }
+
+  const handleGetData = () => {
+    fetch(jsonLink)
+      .then(response => response.blob())
+      .then(blob => {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "route.txt";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      })
+      .catch(console.error);
   }
 
   return (
@@ -146,7 +283,7 @@ const RoutePage = () => {
       <div className="route-page__container">
         {/*<img className="route-page__map" src={mapImg} alt="Map"/>*/}
         <div className="route-page__map">
-          <YMaps query={{ lang: "ru_RU", load: "util.bounds" }}>
+          <YMaps query={{ lang: "ru_RU", load: "util.bounds", apikey: "465585cc-2266-4967-bf69-e921eb7856e8" }}>
             <Map
               width="100%"
               height="100%"
@@ -155,26 +292,31 @@ const RoutePage = () => {
                 zoom: 11,
               }}
               onLoad={ymaps => setYmaps(ymaps)}
+              instanceRef={ref => ref && setMap(ref)}
+              onClick={(e) => handleClickPoint(e)}
             >
-              <Clusterer
-                options={{
-                  preset: "islands#invertedVioletClusterIcons",
-                  groupByCoordinates: false,
-                }}
-              >
+              <Clusterer>
                 {points.map((point, index) => (
-                  <Placemark key={point.id} geometry={point.value} iconContent={index + 1} />
+                  <Placemark key={point.value} geometry={point.value} iconContent={index + 1} />
                 ))}
               </Clusterer>
 
               <Polygon
                 geometry={[points.map((point) => point.value)]}
                 options={{
-                  fillColor: "rgba(183,127,127,0.4)",
-                  strokeColor: "#cb0000",
-                  opacity: 0.5,
+                  fillColor: "rgba(183,127,127,0.25)",
+                  strokeColor: "#de4d4d",
                 }}
                 instanceRef={ref => ref && setCenter(ref)}
+              />
+
+              <Polyline
+                geometry={copterRoute}
+                options={{
+                  balloonCloseButton: false,
+                  strokeColor: "#545454",
+                  strokeWidth: 1,
+                }}
               />
             </Map>
           </YMaps>
@@ -208,23 +350,29 @@ const RoutePage = () => {
         <div className="route-page__block route-page__border">
           <div className="route-page__border-haeder">
             <h5>Границы участка обследования</h5>
-            <button className="button light-button">Внести изменения в маршрут</button>
+            <button className="button light-button" onClick={() => handleUpdateRoute()}>Внести изменения в маршрут</button>
           </div>
 
           <div className="route-page__border-buttons">
-            <button className="button light-button">Очистить</button>
-            <button className="button light-button">Добавить точку</button>
+            <button className="button light-button" onClick={() => handleClearPoints()}>Очистить</button>
+            <button className="button light-button" onClick={() => handleAddPointInput()}>Добавить точку</button>
+            <button className="button light-button" onClick={() => handleGetData()}>Данные о маршруте</button>
           </div>
 
           <div className="route-page__border-points">
-            {route?.coordinates?.length > 0 && route.coordinates?.map((el, index) => (
-              <div className="route-page__border-point" key={index}>
+            {pointInputs?.map((point, index) => (
+              <div className="route-page__border-point" key={point.id}>
                 <div className="input-with-label">
-                  <label htmlFor="point-1">Координаты точки #{index + 1}</label>
-                  <input id="point-1" type="text" value={el} onChange={() => handleChangeCoordinates()} />
+                  <label htmlFor={`point-${index + 1}`}>Координаты точки #{index + 1}</label>
+                  <input
+                    id={`point-${index + 1}`}
+                    type="text"
+                    value={point.value}
+                    onChange={(e) => handleChangePointValue(e, point)}
+                  />
                 </div>
-                <button className="button">На карте</button>
-                <button className="close-button"/>
+                <button className="button" onClick={() => handleAddPointOnMap(point)}>На карте</button>
+                <button className="close-button" onClick={() => handleDeletePoint(point)}/>
               </div>
             ))}
           </div>
@@ -268,13 +416,17 @@ const RoutePage = () => {
             </div>
             <div className="new-route-page__additional-settings-input">
               <p>Частота полосы сканирования</p>
-              <input type="text" value={selectedFrequencyFilter} onChange={(el) => setSelectedFrequencyFilter(el)} />
+              <input
+                type="text"
+                value={selectedFrequencyFilter}
+                onChange={(e) => setSelectedFrequencyFilter(e.target.value)}
+              />
             </div>
           </div>
 
           <div className='checkbox-block'>
             {/*<input type="checkbox" id="checkbox1" checked={checkbox} onChange={() => setCheckbox(!checkbox)} />*/}
-            <input type="checkbox" id="checkbox1" checked/>
+            <input type="checkbox" id="checkbox1" checked onChange={() => console.log("") }/>
             <label htmlFor="checkbox1">Разбить участок на несколько обследований</label>
           </div>
 
@@ -335,7 +487,7 @@ const RoutePage = () => {
               && getCopter()?.channels?.map((el, index) => (
                 <div className="input-with-label new-route-page__settings-input" key={el.id}>
                   <label htmlFor="">Канал связи #{index + 1}</label>
-                  <input id="search" type="text" value={el.link} />
+                  <input id="search" type="text" value={el.link} onChange={() => console.log("")} />
                 </div>
               )
             )}

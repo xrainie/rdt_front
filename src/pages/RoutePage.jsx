@@ -424,45 +424,44 @@ const RoutePage = () => {
             </div>
           </div>
 
-          <div className='checkbox-block'>
-            {/*<input type="checkbox" id="checkbox1" checked={checkbox} onChange={() => setCheckbox(!checkbox)} />*/}
-            <input type="checkbox" id="checkbox1" checked onChange={() => console.log("") }/>
-            <label htmlFor="checkbox1">Разбить участок на несколько обследований</label>
-          </div>
-
-          <h6>Выбор устройств</h6>
-          <div className="new-route-page__additional-settings-devices">
-            <div className="input-with-label">
-              <label htmlFor="count">Количество</label>
-              <Select
-                id="count"
-                options={route.quadcopters?.map((el, index) => {
-                  return {value: index + 1, label: index + 1}
-                })}
-                isSearchable={false}
-                className="dropdown"
-                classNamePrefix="dropdown"
-                value={selectedCountFilter}
-                onChange={(el) => setSelectedCountFilter(el)}
-              />
-            </div>
-            {[...Array(selectedCountFilter.value)].map((el, index) => (
-              <div className="input-with-label" key={index}>
-                <label htmlFor="device2">Устройство</label>
-                <Select
-                  id={`device2-${index+1}`}
-                  options={route.quadcopters?.map((el, index) => {
-                    return {value: el.id, label: el.name}
-                  })}
-                  isSearchable={false}
-                  className="dropdown"
-                  classNamePrefix="dropdown"
-                  value={selectedCopterFilter}
-                  onChange={(el) => setSelectedCopterFilter(el)}
-                />
-              </div>
-            ))}
-          </div>
+          {/*<div className='checkbox-block'>*/}
+          {/*  <input type="checkbox" id="checkbox1" checked onChange={() => console.log("") }/>*/}
+          {/*  <label htmlFor="checkbox1">Разбить участок на несколько обследований</label>*/}
+          {/*</div>*/}
+          {/**/}
+          {/*<h6>Выбор устройств</h6>*/}
+          {/*<div className="new-route-page__additional-settings-devices">*/}
+          {/*  <div className="input-with-label">*/}
+          {/*    <label htmlFor="count">Количество</label>*/}
+          {/*    <Select*/}
+          {/*      id="count"*/}
+          {/*      options={route.quadcopters?.map((el, index) => {*/}
+          {/*        return {value: index + 1, label: index + 1}*/}
+          {/*      })}*/}
+          {/*      isSearchable={false}*/}
+          {/*      className="dropdown"*/}
+          {/*      classNamePrefix="dropdown"*/}
+          {/*      value={selectedCountFilter}*/}
+          {/*      onChange={(el) => setSelectedCountFilter(el)}*/}
+          {/*    />*/}
+          {/*  </div>*/}
+          {/*  {[...Array(selectedCountFilter.value)].map((el, index) => (*/}
+          {/*    <div className="input-with-label" key={index}>*/}
+          {/*      <label htmlFor="device2">Устройство</label>*/}
+          {/*      <Select*/}
+          {/*        id={`device2-${index+1}`}*/}
+          {/*        options={route.quadcopters?.map((el, index) => {*/}
+          {/*          return {value: el.id, label: el.name}*/}
+          {/*        })}*/}
+          {/*        isSearchable={false}*/}
+          {/*        className="dropdown"*/}
+          {/*        classNamePrefix="dropdown"*/}
+          {/*        value={selectedCopterFilter}*/}
+          {/*        onChange={(el) => setSelectedCopterFilter(el)}*/}
+          {/*      />*/}
+          {/*    </div>*/}
+          {/*  ))}*/}
+          {/*</div>*/}
         </div>
 
         <div className="route-page__block new-route-page__settings">
@@ -482,15 +481,15 @@ const RoutePage = () => {
                 onChange={(el) => setSelectedSettingCopterFilter(el)}
               />
             </div>
-            <button className="button light-button">Добавить канал</button>
-            {getCopter()?.channels?.length > 0
-              && getCopter()?.channels?.map((el, index) => (
-                <div className="input-with-label new-route-page__settings-input" key={el.id}>
-                  <label htmlFor="">Канал связи #{index + 1}</label>
-                  <input id="search" type="text" value={el.link} onChange={() => console.log("")} />
-                </div>
-              )
-            )}
+            {/*<button className="button light-button">Добавить канал</button>*/}
+            {/*{getCopter()?.channels?.length > 0*/}
+            {/*  && getCopter()?.channels?.map((el, index) => (*/}
+            {/*    <div className="input-with-label new-route-page__settings-input" key={el.id}>*/}
+            {/*      <label htmlFor="">Канал связи #{index + 1}</label>*/}
+            {/*      <input id="search" type="text" value={el.link} onChange={() => console.log("")} />*/}
+            {/*    </div>*/}
+            {/*  )*/}
+            {/*)}*/}
           </div>
         </div>
       </div>

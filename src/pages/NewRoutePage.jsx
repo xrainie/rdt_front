@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Select from "react-select";
 
-import { addRoute, getQuadcopters } from "../api";
+import {addRoute, getQuadcopters, login} from "../api";
 import { YMaps, Map, Placemark, Polygon, Clusterer } from '@pbe/react-yandex-maps';
 
 const selectTypeFilterList = [
@@ -262,30 +262,49 @@ const NewRoutePage = () => {
             </div>
           </div>
 
-          <div className='checkbox-block'>
-            {/*<input type="checkbox" id="checkbox1" checked={checkbox} onChange={() => setCheckbox(!checkbox)} />*/}
-            <input type="checkbox" id="checkbox1" checked/>
-            <label htmlFor="checkbox1">Разбить участок на несколько обследований</label>
-          </div>
+          {/*<div className='checkbox-block'>*/}
+          {/*  <input type="checkbox" id="checkbox1" checked onChange={() => null}/>*/}
+          {/*  <label htmlFor="checkbox1">Разбить участок на несколько обследований</label>*/}
+          {/*</div>*/}
+          {/**/}
+          {/*<h6>Выбор устройств</h6>*/}
+          {/*<div className="new-route-page__additional-settings-devices">*/}
+          {/*  <div className="input-with-label">*/}
+          {/*  <label htmlFor="count">Количество</label>*/}
+          {/*  <Select*/}
+          {/*    id="count"*/}
+          {/*    options={quadcopters?.map((el, index) => {*/}
+          {/*      return {value: index + 1, label: index + 1}*/}
+          {/*    })}*/}
+          {/*    isSearchable={false}*/}
+          {/*    className="dropdown"*/}
+          {/*    classNamePrefix="dropdown"*/}
+          {/*    value={selectedCountFilter}*/}
+          {/*    onChange={(el) => setSelectedCountFilter(el)}*/}
+          {/*  />*/}
+          {/*  </div>*/}
+          {/*  <div className="input-with-label">*/}
+          {/*    <label htmlFor="device2">Устройство</label>*/}
+          {/*    <Select*/}
+          {/*      id="device"*/}
+          {/*      options={quadcopters.map((el) => {*/}
+          {/*        return {value: el.id, label: el.name}*/}
+          {/*      })}*/}
+          {/*      isSearchable={false}*/}
+          {/*      className="dropdown"*/}
+          {/*      classNamePrefix="dropdown"*/}
+          {/*      value={selectedCopterFilter}*/}
+          {/*      onChange={(el) => setSelectedCopterFilter(el)}*/}
+          {/*    />*/}
+          {/*  </div>*/}
+          {/*</div>*/}
+        </div>
 
-          <h6>Выбор устройств</h6>
-          <div className="new-route-page__additional-settings-devices">
-            {/*<div className="input-with-label">*/}
-            {/*<label htmlFor="count">Количество</label>*/}
-            {/*<Select*/}
-            {/*  id="count"*/}
-            {/*  options={quadcopters?.map((el, index) => {*/}
-            {/*    return {value: index + 1, label: index + 1}*/}
-            {/*  })}*/}
-            {/*  isSearchable={false}*/}
-            {/*  className="dropdown"*/}
-            {/*  classNamePrefix="dropdown"*/}
-            {/*  value={selectedCountFilter}*/}
-            {/*  onChange={(el) => setSelectedCountFilter(el)}*/}
-            {/*/>*/}
-            {/*</div>*/}
+        <div className="new-route-page__block new-route-page__settings">
+          <h5>Настройки выбранного устройства</h5>
+          <div className="new-route-page__settings-list">
             <div className="input-with-label">
-              <label htmlFor="device2">Устройство</label>
+              <label htmlFor="device">Устройство</label>
               <Select
                 id="device"
                 options={quadcopters.map((el) => {
@@ -298,26 +317,6 @@ const NewRoutePage = () => {
                 onChange={(el) => setSelectedCopterFilter(el)}
               />
             </div>
-          </div>
-        </div>
-
-        <div className="new-route-page__block new-route-page__settings">
-          <h5>Настройки выбранного устройства</h5>
-          <div className="new-route-page__settings-list">
-            {/*<div className="input-with-label">*/}
-            {/*  <label htmlFor="device">Устройство</label>*/}
-            {/*  <Select*/}
-            {/*    id="device"*/}
-            {/*    options={quadcopters.map((el) => {*/}
-            {/*      return {value: el.id, label: el.name}*/}
-            {/*    })}*/}
-            {/*    isSearchable={false}*/}
-            {/*    className="dropdown"*/}
-            {/*    classNamePrefix="dropdown"*/}
-            {/*    value={selectedCopterFilter}*/}
-            {/*    onChange={(el) => setSelectedCopterFilter(el)}*/}
-            {/*  />*/}
-            {/*</div>*/}
             {/*<button className="button light-button">Добавить канал</button>*/}
             {/*<div className="input-with-label new-route-page__settings-input">*/}
             {/*  <label htmlFor="">Канал связи #1</label>*/}

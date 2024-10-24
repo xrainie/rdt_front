@@ -346,3 +346,7 @@ input {
 [class*="copyrights-pane"] {
   display: none !important;
 }
+
+.Toastify__toast {
+  background: $dark-gray2 !important;
+}

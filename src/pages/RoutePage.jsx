@@ -2,8 +2,10 @@ import Select from "react-select";
 import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { Context } from "../common/utils/context";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-import { getRoute, getRouteJson, updateRoute } from "../api";
+import {getRoute, getRouteJson, login, updateRoute} from "../api";
 import { Clusterer, Map, Placemark, Polygon, Polyline, YMaps } from "@pbe/react-yandex-maps";
 
 const selectTypeFilterList = [
@@ -63,10 +65,15 @@ const RoutePage = () => {
     });
   }
 
+  const notify = () => toast("Маршрут слишком длинный");
+
   const getRouteJsonData = () => {
     getRouteJson({route_id: id}).then((response) => {
       setJsonLink(response.data.full_path_url)
       setCopterRoute(response.data.path_vertices);
+      if (!Array.isArray(response.data.path_vertices)) {
+        notify();
+      }
     }).catch((error) => {
       console.log(error);
     });
@@ -302,7 +309,7 @@ const RoutePage = () => {
               </Clusterer>
 
               <Polygon
-                geometry={[points.map((point) => point.value)]}
+                geometry={[points.filter((el, index) => index !== 0).map((point) => point.value)]}
                 options={{
                   fillColor: "rgba(183,127,127,0.25)",
                   strokeColor: "#de4d4d",
@@ -493,6 +500,19 @@ const RoutePage = () => {
           </div>
         </div>
       </div>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </div>
   )
 }

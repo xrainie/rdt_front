@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Select from "react-select";
 
-import {addRoute, getQuadcopters, login} from "../api";
+import { addRoute, getQuadcopters } from "../api";
 import { YMaps, Map, Placemark, Polygon, Clusterer } from '@pbe/react-yandex-maps';
 
 const selectTypeFilterList = [
@@ -179,7 +179,7 @@ const NewRoutePage = () => {
               </Clusterer>
 
               <Polygon
-                geometry={[points.map((point) => point.value)]}
+                geometry={[points.filter((el, index) => index !== 0).map((point) => point.value)]}
                 options={{
                   fillColor: "rgba(183,127,127,0.4)",
                   strokeColor: "#cb0000",

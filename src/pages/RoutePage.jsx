@@ -3,10 +3,10 @@ import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { Context } from "../common/utils/context";
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
-import {getRoute, getRouteJson, login, updateRoute} from "../api";
+import { getQuadcopters, getRoute, getRouteJson, updateRoute } from "../api";
 import { Clusterer, Map, Placemark, Polygon, Polyline, YMaps } from "@pbe/react-yandex-maps";
+import { getUuid } from "../common/utils/getUuid";
 
 const selectTypeFilterList = [
   {value: 1, label: "Зигзаг"},
@@ -25,12 +25,14 @@ const RoutePage = () => {
   const { getRoutesData } = useContext(Context);
 
   const [route, setRoute] = useState({});
+  const [quadcopters, setQuadcopters] = useState([]);
   const [selectedTypeFilter, setSelectedTypeFilter] = useState({});
   const [selectedRangeFilter, setSelectedRangeFilter] = useState({});
   const [selectedFrequencyFilter, setSelectedFrequencyFilter] = useState('');
-  const [selectedCountFilter, setSelectedCountFilter] = useState({});
-  const [selectedCopterFilter, setSelectedCopterFilter] = useState({});
+  // const [selectedCountFilter, setSelectedCountFilter] = useState({});
+  // const [selectedCopterFilter, setSelectedCopterFilter] = useState({});
   const [selectedSettingCopterFilter, setSelectedSettingCopterFilter] = useState({});
+  const [channels, setChannels] = useState([]);
   const [lastPointIndex, setLastPointIndex] = useState(0);
 
   const [routeTitle, setRouteTitle] = useState('');
@@ -50,8 +52,8 @@ const RoutePage = () => {
       setSelectedTypeFilter(selectTypeFilterList.filter((el) => el.label === response.data.type_search)[0]);
       setSelectedRangeFilter({value: response.data.scan_range, label: response.data.scan_range});
       setSelectedFrequencyFilter(response.data.scan_frequency);
-      setSelectedCountFilter({value: response.data.quadcopters.length, label: response.data.quadcopters.length});
-      setSelectedCopterFilter({value: response.data.quadcopters[0]?.id, label: response.data.quadcopters[0]?.name});
+      // setSelectedCountFilter({value: response.data.quadcopters.length, label: response.data.quadcopters.length});
+      // setSelectedCopterFilter({value: response.data.quadcopters[0]?.id, label: response.data.quadcopters[0]?.name});
       setSelectedSettingCopterFilter({value: response.data.quadcopters[0]?.id, label: response.data.quadcopters[0]?.name});
       setPointInputs(response.data.coordinates.map((el, index) => {
         return {id: index, value: el.split(',').map((el, index) => Number(el))}
@@ -64,6 +66,19 @@ const RoutePage = () => {
       console.log(error);
     });
   }
+
+  useEffect(() => {
+    getQuadcopters().then((response) => {
+      setQuadcopters(response.data);
+    }).catch((error) => {
+      console.log(error);
+    });
+  }, []);
+
+  useEffect(() => {
+    const newChannels = quadcopters.filter(copter => copter.id === selectedSettingCopterFilter.value)[0]?.channels ?? [];
+    setChannels([...newChannels]);
+  }, [selectedSettingCopterFilter]);
 
   const notify = () => toast("Маршрут слишком длинный");
 
@@ -99,6 +114,9 @@ const RoutePage = () => {
   }
 
   const getParams = () => {
+    const selectCopter = (quadcopters.filter((el) => el.id === selectedSettingCopterFilter.value))[0];
+    selectCopter.channels = channels;
+
     return ({
       coordinates: pointInputs
         .filter((el) => el.value !== "")
@@ -107,19 +125,17 @@ const RoutePage = () => {
       type_search: selectedTypeFilter.label,
       scan_range: selectedRangeFilter.label,
       scan_frequency: selectedFrequencyFilter,
+      quadcopters: [selectCopter]
     })
   }
 
   const handleUpdateRoute = () => {
     updateRoute(id, {...getParams()}).then((response) => {
       getRouteData();
+      getRouteJsonData();
     }).catch((error) => {
       console.log(error);
     });
-  }
-
-  const getCopter = () => {
-    return route.quadcopters?.filter((el) => el.id === selectedSettingCopterFilter.value)[0];
   }
 
   const handleToggleNoneClass = () => {
@@ -220,15 +236,16 @@ const RoutePage = () => {
     setPointInputs([
       {value: "", id: 0},
       {value: "", id: 1},
-      {value: "", id: 2}
+      {value: "", id: 2},
+      {value: "", id: 3}
     ]);
     setPoints([]);
-    setLastPointIndex(2);
+    setLastPointIndex(3);
     map.setCenter(defaultPoint);
   }
 
   const handleDeletePoint = (point) => {
-    if (pointInputs.length > 3) {
+    if (pointInputs.length > 4) {
       const newPointInputsArray = pointInputs.filter((el) => el.id !== point.id);
       setPointInputs([...newPointInputsArray])
 
@@ -249,6 +266,19 @@ const RoutePage = () => {
         link.remove();
       })
       .catch(console.error);
+  }
+
+  const handleChangeChannel = (e, channel) => {
+    let array = channels;
+    const elIndex = array.findIndex((el) => el.id === channel.id);
+    array.splice(elIndex, 1, {id: channel.id, link: e.target.value})
+    setChannels([...array]);
+  }
+
+  const handleAddChannel = () => {
+    let array = channels;
+    array.push({id: getUuid(), link: ''});
+    setChannels([...array]);
   }
 
   return (
@@ -370,7 +400,13 @@ const RoutePage = () => {
             {pointInputs?.map((point, index) => (
               <div className="route-page__border-point" key={point.id}>
                 <div className="input-with-label">
-                  <label htmlFor={`point-${index + 1}`}>Координаты точки #{index + 1}</label>
+                  <label htmlFor={`point-${index + 1}`}>
+                    {index === 0 ? (
+                      <>Точка начала движения коптера</>
+                    ) : (
+                      <>Координаты точки #{index}</>
+                    )}
+                  </label>
                   <input
                     id={`point-${index + 1}`}
                     type="text"
@@ -478,7 +514,7 @@ const RoutePage = () => {
               <label htmlFor="device">Устройство</label>
               <Select
                 id="device"
-                options={route.quadcopters?.map((el, index) => {
+                options={quadcopters?.map((el, index) => {
                   return {value: el.id, label: el.name}
                 })}
                 isSearchable={false}
@@ -488,15 +524,18 @@ const RoutePage = () => {
                 onChange={(el) => setSelectedSettingCopterFilter(el)}
               />
             </div>
-            {/*<button className="button light-button">Добавить канал</button>*/}
-            {/*{getCopter()?.channels?.length > 0*/}
-            {/*  && getCopter()?.channels?.map((el, index) => (*/}
-            {/*    <div className="input-with-label new-route-page__settings-input" key={el.id}>*/}
-            {/*      <label htmlFor="">Канал связи #{index + 1}</label>*/}
-            {/*      <input id="search" type="text" value={el.link} onChange={() => console.log("")} />*/}
-            {/*    </div>*/}
-            {/*  )*/}
-            {/*)}*/}
+            <button className="button light-button" onClick={handleAddChannel}>Добавить канал</button>
+            {channels?.length > 0 && channels.map((el, index) => (
+              <div className="input-with-label new-route-page__settings-input" key={el.id}>
+                <label htmlFor={`channel-${index + 1}`}>Канал связи #{index + 1}</label>
+                <input
+                  id={`channel-${index + 1}`}
+                  type="text"
+                  value={el.link}
+                  onChange={(e) => handleChangeChannel(e, el)}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>

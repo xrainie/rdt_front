@@ -1,13 +1,19 @@
 import { Fragment, useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import Select from "react-select";
+
+import DatePicker, { registerLocale } from  "react-datepicker";
+import { ru } from 'date-fns/locale/ru';
 
 import { getArchive } from "../api";
 import mapImg from "../common/images/map4.png";
 
 const ArchivePage = () => {
   const [isOpenDropdown, setIsOpenDropdown] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [archive, setArchive] = useState(false);
+
+  registerLocale('ru', ru)
 
   useEffect(() => {
     getArchive().then((response) => {
@@ -24,19 +30,33 @@ const ArchivePage = () => {
       <div className="archive-page__header">
         <div className="archive-page__filter">
           <p>Поиск по дате</p>
-          <Select
-            id="trajectory"
-            isSearchable={false}
-            className="dropdown"
-            classNamePrefix="dropdown"
-          />
+          <div>
+            <DatePicker
+              showIcon
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              placeholderText="Период с"
+              showYearDropdown
+              locale={'ru'}
+              dateFormat="P"
+              toggleCalendarOnIconClick
+              icon={<button/>}
+            />
+          </div>
           <span>—</span>
-          <Select
-            id="trajectory"
-            isSearchable={false}
-            className="dropdown"
-            classNamePrefix="dropdown"
-          />
+          <div>
+            <DatePicker
+              showIcon
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              placeholderText="Период с"
+              showYearDropdown
+              locale={'ru'}
+              dateFormat="P"
+              toggleCalendarOnIconClick
+              icon={<button/>}
+            />
+          </div>
           <button className="button light-button">Поиск</button>
         </div>
 

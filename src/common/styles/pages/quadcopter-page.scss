@@ -47,8 +47,13 @@
       }
     }
 
+    &-buttons {
+      margin-bottom: 1.25vw;
+    }
+
     &-body {
       display: flex;
+      flex-wrap: wrap;
       gap: 0.83vw;
       margin-bottom: 1.25vw;
       align-items: center;

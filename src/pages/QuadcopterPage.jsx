@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 
-import {addQuadcopters, deleteQuadcopters, getQuadcopters, updateQuadcopters} from "../api";
+import { addQuadcopters, deleteQuadcopters, getQuadcopters, updateQuadcopters } from "../api";
 import Modal from "react-modal";
 import Select from "react-select";
+import {getUuid} from "../common/utils/getUuid";
 
 const channelCountList = [
   {value: 1, label: 1},
@@ -96,15 +97,19 @@ const QuadcopterPage = () => {
 
   const handleUpdate = (id) => {
     const copter = quadcopters.filter((el) => el.id === id)[0];
-    const channels = copter.channels.map((el) => {
-      return {link: el.link};
-    });
 
-    updateQuadcopters(id, {name: copter.name, channels}).then((response) => {
+    updateQuadcopters(id, {name: copter.name, channels: copter.channels}).then((response) => {
       getQuadcoptersList();
     }).catch((error) => {
       console.log(error);
     });
+  }
+
+  const handleAddChannel = (id) => {
+    const newArray = quadcopters;
+    const indexCopter = quadcopters.findIndex((el) => el.id === id);
+    newArray[indexCopter].channels.push({id: getUuid(), link: ''});
+    setQuadcopters([...newArray]);
   }
 
   return (
@@ -141,6 +146,9 @@ const QuadcopterPage = () => {
                 />
                 <button className="button" onClick={() => handleUpdate(el.id)}>ред.</button>
                 <button className="button" onClick={() => handleDelete(el.id)}>удалить</button>
+              </div>
+              <div className="quadcopter-page__item-buttons">
+                <button className="button" onClick={() => handleAddChannel(el.id)}>Добавить канал</button>
               </div>
               <div className="quadcopter-page__item-body">
                 {el.channels.map((channel, index) => (
@@ -202,4 +210,4 @@ const QuadcopterPage = () => {
   )
 }
 
-export {QuadcopterPage}
+export { QuadcopterPage }

@@ -3,6 +3,7 @@ import Select from "react-select";
 
 import { addRoute, getQuadcopters } from "../api";
 import { YMaps, Map, Placemark, Polygon, Clusterer } from '@pbe/react-yandex-maps';
+import { getUuid } from "../common/utils/getUuid";
 
 const selectTypeFilterList = [
   {value: 1, label: "Зигзаг"},
@@ -18,7 +19,8 @@ const defaultPoint = [55.75399399999374,37.62209300000001];
 const defaultPointInputs = [
   {value: "", id: 0},
   {value: "", id: 1},
-  {value: "", id: 2}
+  {value: "", id: 2},
+  {value: "", id: 3}
 ]
 
 const NewRoutePage = () => {
@@ -27,12 +29,13 @@ const NewRoutePage = () => {
   const [selectedRangeFilter, setSelectedRangeFilter] = useState({value: 1, label: 1});
   const [selectedFrequencyFilter, setSelectedFrequencyFilter] = useState('');
   const [selectedCopterFilter, setSelectedCopterFilter] = useState({});
+  const [channels, setChannels] = useState([]);
   // const [selectedCountFilter, setSelectedCountFilter] = useState({value: 1, label: 1});
 
   const [map, setMap] = useState(null);
   const [points, setPoints] = useState([]);
   const [pointInputs, setPointInputs] = useState(defaultPointInputs);
-  const [lastPointIndex, setLastPointIndex] = useState(2);
+  const [lastPointIndex, setLastPointIndex] = useState(3);
 
   useEffect(() => {
     getQuadcopters().then((response) => {
@@ -45,8 +48,14 @@ const NewRoutePage = () => {
     });
   }, []);
 
+  useEffect(() => {
+    const newChannels = quadcopters.filter(copter => copter.id === selectedCopterFilter.value)[0]?.channels ?? [];
+    setChannels([...newChannels]);
+  }, [selectedCopterFilter]);
+
   const getParams = () => {
     const selectCopter = (quadcopters.filter((el) => el.id === selectedCopterFilter.value))[0];
+    selectCopter.channels = channels;
 
     return ({
       coordinates: pointInputs
@@ -132,21 +141,35 @@ const NewRoutePage = () => {
     setPointInputs([
       {value: "", id: 0},
       {value: "", id: 1},
-      {value: "", id: 2}
+      {value: "", id: 2},
+      {value: "", id: 3}
     ]);
     setPoints([]);
-    setLastPointIndex(2);
+    setLastPointIndex(3);
     map.setCenter(defaultPoint);
   }
 
   const handleDeletePoint = (point) => {
-    if (pointInputs.length > 3) {
+    if (pointInputs.length > 4) {
       const newPointInputsArray = pointInputs.filter((el) => el.id !== point.id);
       setPointInputs([...newPointInputsArray])
 
       const newPointsArray = points.filter((el) => el.id !== point.id);
       setPoints([...newPointsArray])
     }
+  }
+
+  const handleChangeChannel = (e, channel) => {
+    let array = channels;
+    const elIndex = array.findIndex((el) => el.id === channel.id);
+    array.splice(elIndex, 1, {id: channel.id, link: e.target.value})
+    setChannels([...array]);
+  }
+
+  const handleAddChannel = () => {
+    let array = channels;
+    array.push({id: getUuid(), link: ''});
+    setChannels([...array]);
   }
 
   return (
@@ -200,7 +223,13 @@ const NewRoutePage = () => {
             {pointInputs.map((point, index) => (
               <div className="new-route-page__borders-point" key={point.id}>
                 <div className="input-with-label">
-                  <label htmlFor={`point-${index + 1}`}>Координаты точки #{index + 1}</label>
+                  <label htmlFor={`point-${index + 1}`}>
+                    {index === 0 ? (
+                      <>Точка начала движения коптера</>
+                    ) : (
+                      <>Координаты точки #{index}</>
+                    )}
+                  </label>
                   <input
                     id={`point-${index + 1}`}
                     type="text"
@@ -317,15 +346,18 @@ const NewRoutePage = () => {
                 onChange={(el) => setSelectedCopterFilter(el)}
               />
             </div>
-            {/*<button className="button light-button">Добавить канал</button>*/}
-            {/*<div className="input-with-label new-route-page__settings-input">*/}
-            {/*  <label htmlFor="">Канал связи #1</label>*/}
-            {/*  <input id="search" type="text"/>*/}
-            {/*</div>*/}
-            {/*<div className="input-with-label new-route-page__settings-input">*/}
-            {/*  <label htmlFor="">Канал связи #2</label>*/}
-            {/*  <input id="search" type="text"/>*/}
-            {/*</div>*/}
+            <button className="button light-button" onClick={handleAddChannel}>Добавить канал</button>
+            {channels?.length > 0 && channels.map((el, index) => (
+              <div className="input-with-label new-route-page__settings-input" key={el.id}>
+                <label htmlFor={`channel-${index + 1}`}>Канал связи #{index + 1}</label>
+                <input
+                  id={`channel-${index + 1}`}
+                  type="text"
+                  value={el.link}
+                  onChange={(e) => handleChangeChannel(e, el)}
+                />
+              </div>
+            ))}
           </div>
 
           <button

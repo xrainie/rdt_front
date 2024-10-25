@@ -26,11 +26,14 @@
   &__menu {
     display: flex;
     flex-direction: column;
+    max-height: calc(100vh - 12.9vw);
     padding: 0.42vw 0.83vw;
+    overflow: auto;
 
     &-link {
       display: flex;
       align-items: center;
+      flex-shrink: 0;
       height: 2.5vw;
       line-height: 1.25vw;
       padding: 0 0.83vw;
